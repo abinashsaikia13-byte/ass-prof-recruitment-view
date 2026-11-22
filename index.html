@@ -41,7 +41,13 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <button type="button" onclick="loadFromSheet(true)" id="refreshBtn" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition">
+        <button type="button" id="welcomeChip" onclick="openNameModal(true)" title="Edit your name" class="hidden inline-flex items-center gap-2 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-sm font-medium rounded-lg transition max-w-[220px]">
+          <span id="welcomeText" class="truncate"></span>
+          <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.768-6.768a2 2 0 112.828 2.828L11.828 15.83a4 4 0 01-1.414.943L6 18l1.227-4.414A4 4 0 019 13z" />
+          </svg>
+        </button>
+        <button onclick="loadFromSheet(true)" id="refreshBtn" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
@@ -89,7 +95,6 @@
           <option value="SC">SC</option>
           <option value="ST">ST</option>
           <option value="EWS">EWS</option>
-          <option value="PWD">PWD</option>
         </select>
 
         <select id="statusFilter" onchange="render()" class="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -97,7 +102,6 @@
           <option value="Not Applied">Not Applied (My Device)</option>
           <option value="Applied">Applied (My Device)</option>
           <option value="Shortlisted">Shortlisted (My Device)</option>
-          <option value="Not Interested">Not Interested (My Device)</option>
           <option value="Closed">Closed (My Device)</option>
         </select>
       </div>
@@ -105,10 +109,10 @@
       <div class="flex items-center justify-end gap-2">
         <span class="text-xs text-slate-500 mr-1" id="resultCountLabel">Showing 0 entries</span>
         <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-100">
-          <button type="button" id="btnTableView" onclick="setView('table')" class="px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 bg-white text-slate-900 shadow-sm">
+          <button id="btnTableView" onclick="setView('table')" class="px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 bg-white text-slate-900 shadow-sm">
             Table
           </button>
-          <button type="button" id="btnCardView" onclick="setView('card')" class="px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900">
+          <button id="btnCardView" onclick="setView('card')" class="px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900">
             Cards
           </button>
         </div>
@@ -144,15 +148,43 @@
     <section id="emptyState" class="hidden bg-white rounded-xl border border-slate-200 p-12 text-center">
       <h3 class="text-base font-semibold text-slate-900">No matching recruitment entries</h3>
       <p class="text-sm text-slate-500 mt-1">Try clearing your search filters or refreshing live data.</p>
-      <button type="button" onclick="clearFilters()" class="mt-4 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg transition">
+      <button onclick="clearFilters()" class="mt-4 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg transition">
         Clear Filters
       </button>
     </section>
 
   </main>
 
+
+  <!-- Name Modal -->
+  <div id="nameModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-sm overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="nameModalTitle">
+      <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+        <h2 id="nameModalTitle" class="text-lg font-bold text-slate-900">Welcome! What's your name?</h2>
+      </div>
+      <div class="p-6 space-y-4 text-sm text-slate-700">
+        <p id="nameModalHint" class="text-slate-500">Enter your name so we can greet you next time. It's saved only on this device, and you can change it anytime.</p>
+        <div>
+          <label for="userNameInput" class="block text-xs font-semibold text-slate-700 mb-1">Your name</label>
+          <input type="text" id="userNameInput" maxlength="40" autocomplete="name" placeholder="e.g. Rahul Das" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+          <p id="nameError" class="hidden text-xs text-rose-600 mt-1">Please enter your name to continue.</p>
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-1">
+          <button type="button" id="nameCancelBtn" onclick="closeNameModal()" class="hidden px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50">Cancel</button>
+          <button type="button" onclick="saveUserName()" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-sm">Save name</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // =========================================================================
+    // PASTE YOUR PUBLISHED GOOGLE SHEET CSV URL INSIDE THE QUOTES BELOW
+    // BEFORE UPLOADING THIS HTML FILE TO GITHUB PAGES / NETLIFY / TIINY.HOST:
     const DEFAULT_PUBLISHED_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQyj8I5uU8HbCa6S5BOG_wWfOpd_rj4yqGgJCXfgm6OZ7R_fr7GUTvWIUC7E-fB86StOaKCv5yhi3H1/pub?output=csv";
+    // =========================================================================
+
+    const URL_STORAGE_KEY = 'ass_prof_live_csv_url_v1';
     const STATUS_STORAGE_KEY = 'ass_prof_personal_statuses_v1';
 
     const FALLBACK_RECORDS = [
@@ -216,6 +248,12 @@
       personalStatuses = {};
     }
 
+    try { localStorage.removeItem('ass_prof_live_csv_url_v1'); } catch (e) {}
+
+    function getActiveCsvUrl() {
+      return DEFAULT_PUBLISHED_CSV_URL.trim();
+    }
+
     function setSyncBadge(state, text) {
       const badge = document.getElementById('syncBadge');
       if (state === 'live') {
@@ -230,6 +268,7 @@
       }
     }
 
+    // RFC-4180 compliant CSV parser (handles quoted newlines inside cells)
     function parseCSV(text) {
       const rows = [];
       let row = [];
@@ -298,7 +337,7 @@
       for (let i = 1; i < rows.length; i++) {
         const r = rows[i];
         const collegeName = (r[idxCollege] || '').trim();
-        if (!collegeName) continue;
+        if (!collegeName) continue; // Skip blank trailing SL No. rows
 
         const rawNotice = idxNoticeUrl >= 0 ? (r[idxNoticeUrl] || '').trim() : '';
         const rawWeb = idxWebUrl >= 0 ? (r[idxWebUrl] || '').trim() : '';
@@ -320,7 +359,7 @@
     }
 
     async function loadFromSheet(manual = false) {
-      const csvUrl = (DEFAULT_PUBLISHED_CSV_URL || '').trim();
+      const csvUrl = getActiveCsvUrl();
       const banner = document.getElementById('infoBanner');
       const bannerText = document.getElementById('infoBannerText');
 
@@ -335,6 +374,7 @@
 
       setSyncBadge('loading', 'Syncing Live Data...');
       try {
+        // Cache-busting query param so refreshes always fetch latest edits
         const sep = csvUrl.includes('?') ? '&' : '?';
         const res = await fetch(`${csvUrl}${sep}_t=${Date.now()}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -366,11 +406,11 @@
     function escapeHtml(str) {
       if (!str) return '';
       return String(str)
-        .replace(/&/g, '&')
-        .replace(/</g, '<')
-        .replace(/>/g, '>')
-        .replace(/"/g, '"')
-        .replace(/'/g, ''');
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
     function formatDisplayDate(val) {
@@ -396,15 +436,12 @@
         else if (upper.includes('OBC') || upper.includes('MOBC')) color = 'bg-amber-50 text-amber-700 border-amber-200';
         else if (upper.includes('SC') || upper.includes('ST')) color = 'bg-purple-50 text-purple-700 border-purple-200';
         else if (upper.includes('EWS')) color = 'bg-teal-50 text-teal-700 border-teal-200';
-        else if (upper.includes('PWD')) color = 'bg-rose-50 text-rose-700 border-rose-200';
         return `<span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-md border ${color} mr-1 mb-1">${escapeHtml(line)}</span>`;
       }).join('');
     }
 
     function getRecordKey(r) {
-      return `${r.collegeName}__${r.subject}__${r.postName}`
-        .replace(/\r?\n/g, ' ')
-        .toLowerCase();
+      return `${r.collegeName}__${r.subject}__${r.postName}`.toLowerCase();
     }
 
     function getMyStatus(r) {
@@ -421,32 +458,10 @@
       switch (status) {
         case 'Applied': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
         case 'Shortlisted': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
-        case 'Not Interested': return 'bg-rose-50 text-rose-700 border-rose-200';
         case 'Closed': return 'bg-slate-100 text-slate-600 border-slate-200';
         default: return 'bg-amber-50 text-amber-700 border-amber-200';
       }
     }
-
-    function renderStatusSelect(key, status, compact = false) {
-      const encoded = encodeURIComponent(key);
-      const padClass = compact ? 'px-2 py-1' : 'px-2.5 py-1';
-      return `
-        <select data-record-key="${escapeHtml(encoded)}" class="status-select text-xs font-semibold ${padClass} rounded-lg border cursor-pointer focus:outline-none ${getStatusBadgeClass(status)}">
-          <option value="Not Applied" ${status === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
-          <option value="Applied" ${status === 'Applied' ? 'selected' : ''}>Applied</option>
-          <option value="Shortlisted" ${status === 'Shortlisted' ? 'selected' : ''}>Shortlisted</option>
-          <option value="Not Interested" ${status === 'Not Interested' ? 'selected' : ''}>Not Interested</option>
-          <option value="Closed" ${status === 'Closed' ? 'selected' : ''}>Closed</option>
-        </select>
-      `;
-    }
-
-    document.addEventListener('change', (e) => {
-      const select = e.target.closest('select.status-select');
-      if (!select) return;
-      const key = decodeURIComponent(select.dataset.recordKey || '');
-      if (key) setMyStatus(key, select.value);
-    });
 
     function updateSubjectDropdown() {
       const select = document.getElementById('subjectFilter');
@@ -463,9 +478,6 @@
       const pending = records.filter(r => getMyStatus(r) === 'Not Applied').length;
       const urCount = records.filter(r => (r.reservation || '').toUpperCase().includes('UR')).length;
       const obcCount = records.filter(r => (r.reservation || '').toUpperCase().includes('OBC')).length;
-      const scCount = records.filter(r => (r.reservation || '').toUpperCase().includes('SC')).length;
-      const stCount = records.filter(r => (r.reservation || '').toUpperCase().includes('ST')).length;
-      const pwdCount = records.filter(r => (r.reservation || '').toUpperCase().includes('PWD')).length;
 
       document.getElementById('summaryCards').innerHTML = `
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
@@ -485,10 +497,7 @@
         </div>
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Categories</div>
-          <div class="mt-1 text-sm sm:text-base font-bold text-slate-900 leading-snug">
-            <div>${urCount} UR <span class="text-slate-300 font-normal">|</span> ${obcCount} OBC</div>
-            <div>${scCount} SC <span class="text-slate-300 font-normal">|</span> ${stCount} ST <span class="text-slate-300 font-normal">|</span> ${pwdCount} PWD</div>
-          </div>
+          <div class="mt-1 text-lg font-bold text-slate-900">${urCount} UR <span class="text-slate-300 font-normal">|</span> ${obcCount} OBC</div>
           <div class="mt-1 text-xs text-slate-500">Across listed posts</div>
         </div>
       `;
@@ -519,28 +528,6 @@
         }
         return true;
       });
-    }
-
-    function setView(view) {
-      currentView = view;
-      const btnTable = document.getElementById('btnTableView');
-      const btnCard = document.getElementById('btnCardView');
-      if (view === 'table') {
-        btnTable.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 bg-white text-slate-900 shadow-sm';
-        btnCard.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900';
-      } else {
-        btnCard.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 bg-white text-slate-900 shadow-sm';
-        btnTable.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900';
-      }
-      render();
-    }
-
-    function clearFilters() {
-      document.getElementById('searchInput').value = '';
-      document.getElementById('subjectFilter').value = 'ALL';
-      document.getElementById('reservationFilter').value = 'ALL';
-      document.getElementById('statusFilter').value = 'ALL';
-      render();
     }
 
     function render() {
@@ -612,7 +599,12 @@
               </div>
             </td>
             <td class="px-4 py-3.5 align-top">
-              ${renderStatusSelect(key, status, false)}
+              <select onchange="setMyStatus('${escapeHtml(key)}', this.value)" class="text-xs font-semibold px-2.5 py-1 rounded-lg border cursor-pointer focus:outline-none ${getStatusBadgeClass(status)}">
+                <option value="Not Applied" ${status === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
+                <option value="Applied" ${status === 'Applied' ? 'selected' : ''}>Applied</option>
+                <option value="Shortlisted" ${status === 'Shortlisted' ? 'selected' : ''}>Shortlisted</option>
+                <option value="Closed" ${status === 'Closed' ? 'selected' : ''}>Closed</option>
+              </select>
             </td>
           </tr>
         `;
@@ -633,7 +625,12 @@
                   <h3 class="text-base font-bold text-slate-900 mt-0.5">${escapeHtml(r.collegeName)}</h3>
                   <p class="text-xs text-slate-500 mt-0.5">${escapeHtml(r.address)}</p>
                 </div>
-                ${renderStatusSelect(key, status, true)}
+                <select onchange="setMyStatus('${escapeHtml(key)}', this.value)" class="text-xs font-semibold px-2 py-1 rounded-lg border cursor-pointer ${getStatusBadgeClass(status)}">
+                  <option value="Not Applied" ${status === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
+                  <option value="Applied" ${status === 'Applied' ? 'selected' : ''}>Applied</option>
+                  <option value="Shortlisted" ${status === 'Shortlisted' ? 'selected' : ''}>Shortlisted</option>
+                  <option value="Closed" ${status === 'Closed' ? 'selected' : ''}>Closed</option>
+                </select>
               </div>
 
               <div class="mt-4 pt-3 border-t border-slate-100 space-y-2 text-sm">
@@ -645,27 +642,26 @@
                   <span class="text-xs text-slate-500">Category:</span>
                   <div class="text-right">${getReservationBadges(r.reservation)}</div>
                 </div>
-                <div class="flex justify-between items-center gap-2">
+                <div class="flex justify-between gap-2">
                   <span class="text-xs text-slate-500">Last Date:</span>
                   <span class="text-xs font-semibold text-slate-800">${escapeHtml(formatDisplayDate(r.lastDate))}</span>
                 </div>
                 ${r.other ? `
-                  <div class="pt-1">
-                    <span class="text-xs text-slate-500 block">Notes:</span>
-                    <p class="text-xs text-slate-600 whitespace-pre-line mt-0.5">${escapeHtml(r.other)}</p>
+                  <div class="p-2.5 rounded-lg bg-amber-50/70 border border-amber-100 text-xs text-amber-900 whitespace-pre-line">
+                    <span class="font-semibold">Note:</span> ${escapeHtml(r.other)}
                   </div>
                 ` : ''}
               </div>
             </div>
 
-            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap gap-2">
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2">
               ${r.noticeUrl ? `
-                <a href="${escapeHtml(r.noticeUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1.5 rounded-md transition">
+                <a href="${escapeHtml(r.noticeUrl)}" target="_blank" rel="noopener noreferrer" class="text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1 rounded-md transition">
                   Notice PDF
                 </a>
               ` : ''}
               ${r.websiteUrl ? `
-                <a href="${escapeHtml(r.websiteUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1.5 rounded-md transition">
+                <a href="${escapeHtml(r.websiteUrl)}" target="_blank" rel="noopener noreferrer" class="text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-md transition">
                   Website
                 </a>
               ` : ''}
@@ -675,7 +671,83 @@
       }).join('');
     }
 
-    loadFromSheet(false);
+    function setView(view) {
+      currentView = view;
+      const btnT = document.getElementById('btnTableView');
+      const btnC = document.getElementById('btnCardView');
+      if (view === 'table') {
+        btnT.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 bg-white text-slate-900 shadow-sm';
+        btnC.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900';
+      } else {
+        btnC.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 bg-white text-slate-900 shadow-sm';
+        btnT.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900';
+      }
+      render();
+    }
+
+    function clearFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('subjectFilter').value = 'ALL';
+      document.getElementById('reservationFilter').value = 'ALL';
+      document.getElementById('statusFilter').value = 'ALL';
+      render();
+    }
+
+
+    // ---- User name (saved in this browser only) ----
+    const USER_NAME_KEY = 'ass_prof_user_name_v1';
+
+    function getUserName() {
+      try { return (localStorage.getItem(USER_NAME_KEY) || '').trim(); } catch (e) { return ''; }
+    }
+
+    function renderWelcome() {
+      const name = getUserName();
+      const chip = document.getElementById('welcomeChip');
+      if (name) {
+        document.getElementById('welcomeText').textContent = 'Welcome, ' + name;
+        chip.classList.remove('hidden');
+      } else {
+        chip.classList.add('hidden');
+      }
+    }
+
+    function openNameModal(isEdit) {
+      const input = document.getElementById('userNameInput');
+      input.value = isEdit ? getUserName() : '';
+      document.getElementById('nameError').classList.add('hidden');
+      document.getElementById('nameModalTitle').textContent = isEdit ? 'Edit your name' : "Welcome! What's your name?";
+      document.getElementById('nameCancelBtn').classList.toggle('hidden', !isEdit);
+      document.getElementById('nameModal').classList.remove('hidden');
+      setTimeout(() => { input.focus(); input.select(); }, 0);
+    }
+
+    function closeNameModal() {
+      if (!getUserName()) return; // first visit: a name is required
+      document.getElementById('nameModal').classList.add('hidden');
+    }
+
+    function saveUserName() {
+      const name = document.getElementById('userNameInput').value.trim().replace(/\s+/g, ' ');
+      if (!name) {
+        document.getElementById('nameError').classList.remove('hidden');
+        return;
+      }
+      try { localStorage.setItem(USER_NAME_KEY, name); } catch (e) {}
+      document.getElementById('nameModal').classList.add('hidden');
+      renderWelcome();
+    }
+
+    document.getElementById('userNameInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') saveUserName();
+      if (e.key === 'Escape') closeNameModal();
+    });
+
+    renderWelcome();
+    if (!getUserName()) openNameModal(false);
+
+    // Initialize
+    loadFromSheet();
   </script>
 </body>
 </html>
