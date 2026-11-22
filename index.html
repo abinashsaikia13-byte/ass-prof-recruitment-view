@@ -95,6 +95,7 @@
           <option value="SC">SC</option>
           <option value="ST">ST</option>
           <option value="EWS">EWS</option>
+          <option value="PWD">PWD</option>
         </select>
 
         <select id="statusFilter" onchange="render()" class="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -103,6 +104,7 @@
           <option value="Applied">Applied (My Device)</option>
           <option value="Shortlisted">Shortlisted (My Device)</option>
           <option value="Closed">Closed (My Device)</option>
+          <option value="Not Eligible">Not Eligible (My Device)</option>
         </select>
       </div>
 
@@ -478,6 +480,7 @@
       const pending = records.filter(r => getMyStatus(r) === 'Not Applied').length;
       const urCount = records.filter(r => (r.reservation || '').toUpperCase().includes('UR')).length;
       const obcCount = records.filter(r => (r.reservation || '').toUpperCase().includes('OBC')).length;
+      const pwdCount = records.filter(r => (r.reservation || '').toUpperCase().includes('PWD')).length;
 
       document.getElementById('summaryCards').innerHTML = `
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
