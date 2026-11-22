@@ -76,6 +76,7 @@
           <option value="SC">SC</option>
           <option value="ST">ST</option>
           <option value="EWS">EWS</option>
+          <option value="PWD">PWD</option>
         </select>
 
         <select id="statusFilter" onchange="render()" class="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
@@ -336,6 +337,7 @@
         else if (u.includes('OBC')) color = 'bg-amber-50 text-amber-700 border-amber-200';
         else if (u.includes('SC') || u.includes('ST')) color = 'bg-purple-50 text-purple-700 border-purple-200';
         else if (u.includes('EWS')) color = 'bg-teal-50 text-teal-700 border-teal-200';
+        else if (/\b(PWD|PWBD|PH)\b/.test(u)) color = 'bg-pink-50 text-pink-700 border-pink-200';
         return `<span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-md border ${color} mr-1 mb-1">${escapeHtml(line)}</span>`;
       }).join('');
     }
@@ -361,7 +363,7 @@
 
     function renderSummary() {
       const count = (...list) => records.filter(r => list.includes(getMyStatus(r))).length;
-      const has = (term) => records.filter(r => (r.reservation || '').toUpperCase().includes(term)).length;
+      const has = (term) => records.filter(r => catMatch(r.reservation, term)).length;
       const notEligible = count('Not Eligible/Interested');
 
       $('summaryCards').innerHTML = `
@@ -382,9 +384,19 @@
         </div>
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Categories</div>
-          <div class="mt-1 text-lg font-bold text-slate-900">${has('UR')} UR <span class="text-slate-300 font-normal">|</span> ${has('OBC')} OBC</div>
+          <div class="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-sm font-bold text-slate-900">
+            ${['UR', 'OBC', 'SC', 'ST', 'PWD'].map(c => `<span>${has(c)} <span class="text-xs font-semibold text-slate-500">${c}</span></span>`).join('')}
+          </div>
           <div class="mt-1 text-xs text-slate-500">Across listed posts</div>
         </div>`;
+    }
+
+    // Whole-word category match (so "ST" doesn't match inside other words)
+    function catMatch(resStr, cat) {
+      const u = (resStr || '').toUpperCase();
+      if (cat === 'OBC') return /\b(OBC|MOBC)\b/.test(u);
+      if (cat === 'PWD') return /\b(PWD|PWBD|PH)\b/.test(u);
+      return new RegExp('\\b' + cat + '\\b').test(u);
     }
 
     function getFilteredRecords() {
@@ -396,7 +408,7 @@
       return records.filter(r => {
         if (subj !== 'ALL' && r.subject.trim() !== subj) return false;
         if (stat !== 'ALL' && getMyStatus(r) !== stat) return false;
-        if (res !== 'ALL' && !(r.reservation || '').toUpperCase().includes(res)) return false;
+        if (res !== 'ALL' && !catMatch(r.reservation, res)) return false;
         if (q) {
           const hay = [r.collegeName, r.address, r.subject, r.postName, r.reservation, r.lastDate, r.other].join(' ').toLowerCase();
           if (!hay.includes(q)) return false;
