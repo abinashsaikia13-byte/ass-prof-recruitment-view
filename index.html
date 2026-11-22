@@ -114,6 +114,7 @@
         </div>
       </div>
     </section>
+
     <!-- Table View -->
     <section id="tableViewContainer" class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
@@ -214,6 +215,7 @@
     } catch (e) {
       personalStatuses = {};
     }
+
     function setSyncBadge(state, text) {
       const badge = document.getElementById('syncBadge');
       if (state === 'live') {
@@ -316,6 +318,7 @@
       }
       return result;
     }
+
     async function loadFromSheet(manual = false) {
       const csvUrl = (DEFAULT_PUBLISHED_CSV_URL || '').trim();
       const banner = document.getElementById('infoBanner');
@@ -423,6 +426,7 @@
         default: return 'bg-amber-50 text-amber-700 border-amber-200';
       }
     }
+
     function updateSubjectDropdown() {
       const select = document.getElementById('subjectFilter');
       const currentVal = select.value;
@@ -548,6 +552,7 @@
         renderCards(filtered);
       }
     }
+
     function renderTable(list) {
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = list.map((r, idx) => {
