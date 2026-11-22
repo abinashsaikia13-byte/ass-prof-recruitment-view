@@ -475,12 +475,14 @@
     }
 
     function renderSummary() {
-      const total = records.length;
-      const applied = records.filter(r => ['Applied', 'Shortlisted'].includes(getMyStatus(r))).length;
-      const pending = records.filter(r => getMyStatus(r) === 'Not Applied').length;
-      const urCount = records.filter(r => (r.reservation || '').toUpperCase().includes('UR')).length;
-      const obcCount = records.filter(r => (r.reservation || '').toUpperCase().includes('OBC')).length;
-      const pwdCount = records.filter(r => (r.reservation || '').toUpperCase().includes('PWD')).length;
+    const total = records.length;
+    const applied = records.filter(r => ['Applied', 'Shortlisted'].includes(getMyStatus(r))).length;
+    const pending = records.filter(r => getMyStatus(r) === 'Not Applied').length;
+    const urCount = records.filter(r => (r.reservation || '').toUpperCase().includes('UR')).length;
+    const obcCount = records.filter(r => (r.reservation || '').toUpperCase().includes('OBC')).length;
+    const scCount = records.filter(r => (r.reservation || '').toUpperCase().includes('SC')).length;
+    const stCount = records.filter(r => (r.reservation || '').toUpperCase().includes('ST')).length;
+    const pwdCount = records.filter(r => (r.reservation || '').toUpperCase().includes('PWD')).length;
 
       document.getElementById('summaryCards').innerHTML = `
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
