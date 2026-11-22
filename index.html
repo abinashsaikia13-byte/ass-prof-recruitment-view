@@ -36,7 +36,7 @@
               Setup Required
             </span>
           </div>
-          <p class="text-xs text-slate-500 mt-0.5" id="lastSyncedLabel">Live view synced from Google Sheets</p>
+          <p class="text-xs text-slate-500 mt-0.5" id="lastSyncedLabel">Live data</p>
         </div>
       </div>
 
@@ -46,13 +46,6 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           Refresh Live Data
-        </button>
-        <button onclick="openSetupModal()" class="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-sm font-medium rounded-lg transition">
-          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          Sheet Connection
         </button>
       </div>
     </div>
@@ -64,9 +57,6 @@
     <!-- Error / Setup Banner -->
     <div id="infoBanner" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div class="text-sm text-amber-900" id="infoBannerText"></div>
-      <button onclick="openSetupModal()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg shrink-0 transition">
-        Configure Google Sheet
-      </button>
     </div>
 
     <!-- Summary Metrics -->
@@ -159,50 +149,6 @@
 
   </main>
 
-  <!-- Setup / Connection Modal -->
-  <div id="setupModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-xl overflow-hidden">
-      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-        <h2 class="text-lg font-bold text-slate-900">Connect Live Google Sheet</h2>
-        <button onclick="closeSetupModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <div class="p-6 space-y-4 text-sm text-slate-700">
-        <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-4 space-y-2 text-xs text-indigo-950">
-          <p class="font-semibold text-sm text-indigo-900">How to make your updates appear live for your friend:</p>
-          <ol class="list-decimal list-inside space-y-1.5 leading-relaxed">
-            <li>Upload <strong>Ass.Proff.Rec.xlsx</strong> to Google Drive and open it in <strong>Google Sheets</strong>.</li>
-            <li>Add two plain-text columns at the end named <strong>Notice URL</strong> and <strong>Website URL</strong> (or keep links in cells) so URLs load cleanly.</li>
-            <li>In Google Sheets, click <strong>File → Share → Publish to web</strong>, choose your sheet tab, select <strong>Comma-separated values (.csv)</strong>, and click <strong>Publish</strong>.</li>
-            <li>Paste that published CSV link below (or hardcode it into <code>DEFAULT_PUBLISHED_CSV_URL</code> inside this HTML file before hosting).</li>
-          </ol>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Published Google Sheet CSV URL</label>
-          <input type="url" id="csvUrlInput" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-        </div>
-
-        <div class="pt-3 border-t border-slate-200 flex items-center justify-between gap-3">
-          <button type="button" onclick="useBuiltInFallback()" class="text-xs font-medium text-slate-500 hover:text-slate-800 underline">
-            Load Built-in Initial 4 Entries
-          </button>
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="closeSetupModal()" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50">
-              Cancel
-            </button>
-            <button type="button" onclick="saveCsvUrl()" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-sm">
-              Save & Sync Now
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <script>
     // =========================================================================
@@ -275,11 +221,9 @@
       personalStatuses = {};
     }
 
+    try { localStorage.removeItem('ass_prof_live_csv_url_v1'); } catch (e) {}
+
     function getActiveCsvUrl() {
-      const saved = localStorage.getItem(URL_STORAGE_KEY);
-      if (saved && saved.trim()) return saved.trim();
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('sheet')) return params.get('sheet').trim();
       return DEFAULT_PUBLISHED_CSV_URL.trim();
     }
 
@@ -394,9 +338,9 @@
 
       if (!csvUrl) {
         records = JSON.parse(JSON.stringify(FALLBACK_RECORDS));
-        setSyncBadge('demo', 'Sample Data (Connect Sheet for Live Sync)');
+        setSyncBadge('demo', 'Showing Initial Data');
         banner.classList.remove('hidden');
-        bannerText.innerHTML = '<strong>Live Sheet Not Connected Yet:</strong> Showing your 4 initial entries. Connect your published Google Sheet CSV link so any update you make appears automatically for your friend.';
+        bannerText.textContent = 'Live data is currently unavailable. Showing initial entries.';
         render();
         return;
       }
@@ -418,7 +362,7 @@
         banner.classList.add('hidden');
         setSyncBadge('live', 'Live Synced');
         const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        document.getElementById('lastSyncedLabel').textContent = `Live view synced from Google Sheets • Last checked at ${now}`;
+        document.getElementById('lastSyncedLabel').textContent = `Live data • Last checked at ${now}`;
         render();
       } catch (err) {
         console.error(err);
@@ -427,7 +371,7 @@
         }
         setSyncBadge('demo', 'Sync Issue (Showing Cached/Initial Data)');
         banner.classList.remove('hidden');
-        bannerText.textContent = 'Could not fetch the live Google Sheet CSV. Ensure the sheet is published to the web as CSV and try refreshing.';
+        bannerText.textContent = 'Could not fetch the latest data right now. Please try refreshing in a moment.';
         render();
       }
     }
@@ -720,28 +664,6 @@
       document.getElementById('reservationFilter').value = 'ALL';
       document.getElementById('statusFilter').value = 'ALL';
       render();
-    }
-
-    function openSetupModal() {
-      document.getElementById('csvUrlInput').value = getActiveCsvUrl();
-      document.getElementById('setupModal').classList.remove('hidden');
-    }
-
-    function closeSetupModal() {
-      document.getElementById('setupModal').classList.add('hidden');
-    }
-
-    function saveCsvUrl() {
-      const url = document.getElementById('csvUrlInput').value.trim();
-      localStorage.setItem(URL_STORAGE_KEY, url);
-      closeSetupModal();
-      loadFromSheet(true);
-    }
-
-    function useBuiltInFallback() {
-      localStorage.removeItem(URL_STORAGE_KEY);
-      closeSetupModal();
-      loadFromSheet(true);
     }
 
     // Initialize
