@@ -103,8 +103,8 @@
           <option value="Not Applied">Not Applied (My Device)</option>
           <option value="Applied">Applied (My Device)</option>
           <option value="Shortlisted">Shortlisted (My Device)</option>
+          <option value="Not Interested">Not Interested (My Device)</option>
           <option value="Closed">Closed (My Device)</option>
-          <option value="Not Eligible">Not Eligible (My Device)</option>
         </select>
       </div>
 
@@ -157,7 +157,6 @@
 
   </main>
 
-
   <!-- Name Modal -->
   <div id="nameModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-sm overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="nameModalTitle">
@@ -178,7 +177,6 @@
       </div>
     </div>
   </div>
-
   <script>
     // =========================================================================
     // PASTE YOUR PUBLISHED GOOGLE SHEET CSV URL INSIDE THE QUOTES BELOW
@@ -318,7 +316,6 @@
       }
       return rows;
     }
-
     function mapRowsToRecords(rows) {
       if (!rows || rows.length < 2) return [];
       const headers = rows[0].map(h => h.trim().toLowerCase());
@@ -339,7 +336,7 @@
       for (let i = 1; i < rows.length; i++) {
         const r = rows[i];
         const collegeName = (r[idxCollege] || '').trim();
-        if (!collegeName) continue; // Skip blank trailing SL No. rows
+        if (!collegeName) continue;
 
         const rawNotice = idxNoticeUrl >= 0 ? (r[idxNoticeUrl] || '').trim() : '';
         const rawWeb = idxWebUrl >= 0 ? (r[idxWebUrl] || '').trim() : '';
@@ -376,7 +373,6 @@
 
       setSyncBadge('loading', 'Syncing Live Data...');
       try {
-        // Cache-busting query param so refreshes always fetch latest edits
         const sep = csvUrl.includes('?') ? '&' : '?';
         const res = await fetch(`${csvUrl}${sep}_t=${Date.now()}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -408,11 +404,11 @@
     function escapeHtml(str) {
       if (!str) return '';
       return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+        .replace(/&/g, '&')
+        .replace(/</g, '<')
+        .replace(/>/g, '>')
+        .replace(/"/g, '"')
+        .replace(/'/g, ''');
     }
 
     function formatDisplayDate(val) {
@@ -437,8 +433,8 @@
         if (upper.includes('UR')) color = 'bg-sky-50 text-sky-700 border-sky-200';
         else if (upper.includes('OBC') || upper.includes('MOBC')) color = 'bg-amber-50 text-amber-700 border-amber-200';
         else if (upper.includes('SC') || upper.includes('ST')) color = 'bg-purple-50 text-purple-700 border-purple-200';
-        else if (upper.includes('PWD')) color = 'bg-rose-50 text-rose-700 border-rose-200';
         else if (upper.includes('EWS')) color = 'bg-teal-50 text-teal-700 border-teal-200';
+        else if (upper.includes('PWD')) color = 'bg-rose-50 text-rose-700 border-rose-200';
         return `<span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-md border ${color} mr-1 mb-1">${escapeHtml(line)}</span>`;
       }).join('');
     }
@@ -461,6 +457,7 @@
       switch (status) {
         case 'Applied': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
         case 'Shortlisted': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+        case 'Not Interested': return 'bg-rose-50 text-rose-700 border-rose-200';
         case 'Closed': return 'bg-slate-100 text-slate-600 border-slate-200';
         default: return 'bg-amber-50 text-amber-700 border-amber-200';
       }
@@ -476,14 +473,14 @@
     }
 
     function renderSummary() {
-    const total = records.length;
-    const applied = records.filter(r => ['Applied', 'Shortlisted'].includes(getMyStatus(r))).length;
-    const pending = records.filter(r => getMyStatus(r) === 'Not Applied').length;
-    const urCount = records.filter(r => (r.reservation || '').toUpperCase().includes('UR')).length;
-    const obcCount = records.filter(r => (r.reservation || '').toUpperCase().includes('OBC')).length;
-    const scCount = records.filter(r => (r.reservation || '').toUpperCase().includes('SC')).length;
-    const stCount = records.filter(r => (r.reservation || '').toUpperCase().includes('ST')).length;
-    const pwdCount = records.filter(r => (r.reservation || '').toUpperCase().includes('PWD')).length;
+      const total = records.length;
+      const applied = records.filter(r => ['Applied', 'Shortlisted'].includes(getMyStatus(r))).length;
+      const pending = records.filter(r => getMyStatus(r) === 'Not Applied').length;
+      const urCount = records.filter(r => (r.reservation || '').toUpperCase().includes('UR')).length;
+      const obcCount = records.filter(r => (r.reservation || '').toUpperCase().includes('OBC')).length;
+      const scCount = records.filter(r => (r.reservation || '').toUpperCase().includes('SC')).length;
+      const stCount = records.filter(r => (r.reservation || '').toUpperCase().includes('ST')).length;
+      const pwdCount = records.filter(r => (r.reservation || '').toUpperCase().includes('PWD')).length;
 
       document.getElementById('summaryCards').innerHTML = `
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
@@ -503,13 +500,10 @@
         </div>
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Categories</div>
-          <div class="mt-1 text-sm sm:text-base font-bold text-slate-900 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-            <span>${urCount} UR</span> <span class="text-slate-300 font-normal">|</span>
-            <span>${obcCount} OBC</span> <span class="text-slate-300 font-normal">|</span>
-            <span>${scCount} SC</span> <span class="text-slate-300 font-normal">|</span>
-            <span>${stCount} ST</span> <span class="text-slate-300 font-normal">|</span>
-            <span>${pwdCount} PWD</span>
-        </div>
+          <div class="mt-1 text-sm sm:text-base font-bold text-slate-900 leading-snug">
+            <div>${urCount} UR <span class="text-slate-300 font-normal">|</span> ${obcCount} OBC</div>
+            <div>${scCount} SC <span class="text-slate-300 font-normal">|</span> ${stCount} ST <span class="text-slate-300 font-normal">|</span> ${pwdCount} PWD</div>
+          </div>
           <div class="mt-1 text-xs text-slate-500">Across listed posts</div>
         </div>
       `;
@@ -542,6 +536,28 @@
       });
     }
 
+    function setView(view) {
+      currentView = view;
+      const btnTable = document.getElementById('btnTableView');
+      const btnCard = document.getElementById('btnCardView');
+      if (view === 'table') {
+        btnTable.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 bg-white text-slate-900 shadow-sm';
+        btnCard.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900';
+      } else {
+        btnCard.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 bg-white text-slate-900 shadow-sm';
+        btnTable.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900';
+      }
+      render();
+    }
+
+    function clearFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('subjectFilter').value = 'ALL';
+      document.getElementById('reservationFilter').value = 'ALL';
+      document.getElementById('statusFilter').value = 'ALL';
+      render();
+    }
+
     function render() {
       updateSubjectDropdown();
       renderSummary();
@@ -572,7 +588,6 @@
         renderCards(filtered);
       }
     }
-
     function renderTable(list) {
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = list.map((r, idx) => {
@@ -615,6 +630,7 @@
                 <option value="Not Applied" ${status === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
                 <option value="Applied" ${status === 'Applied' ? 'selected' : ''}>Applied</option>
                 <option value="Shortlisted" ${status === 'Shortlisted' ? 'selected' : ''}>Shortlisted</option>
+                <option value="Not Interested" ${status === 'Not Interested' ? 'selected' : ''}>Not Interested</option>
                 <option value="Closed" ${status === 'Closed' ? 'selected' : ''}>Closed</option>
               </select>
             </td>
@@ -641,6 +657,7 @@
                   <option value="Not Applied" ${status === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
                   <option value="Applied" ${status === 'Applied' ? 'selected' : ''}>Applied</option>
                   <option value="Shortlisted" ${status === 'Shortlisted' ? 'selected' : ''}>Shortlisted</option>
+                  <option value="Not Interested" ${status === 'Not Interested' ? 'selected' : ''}>Not Interested</option>
                   <option value="Closed" ${status === 'Closed' ? 'selected' : ''}>Closed</option>
                 </select>
               </div>
@@ -654,26 +671,27 @@
                   <span class="text-xs text-slate-500">Category:</span>
                   <div class="text-right">${getReservationBadges(r.reservation)}</div>
                 </div>
-                <div class="flex justify-between gap-2">
+                <div class="flex justify-between items-center gap-2">
                   <span class="text-xs text-slate-500">Last Date:</span>
                   <span class="text-xs font-semibold text-slate-800">${escapeHtml(formatDisplayDate(r.lastDate))}</span>
                 </div>
                 ${r.other ? `
-                  <div class="p-2.5 rounded-lg bg-amber-50/70 border border-amber-100 text-xs text-amber-900 whitespace-pre-line">
-                    <span class="font-semibold">Note:</span> ${escapeHtml(r.other)}
+                  <div class="pt-1">
+                    <span class="text-xs text-slate-500 block">Notes:</span>
+                    <p class="text-xs text-slate-600 whitespace-pre-line mt-0.5">${escapeHtml(r.other)}</p>
                   </div>
                 ` : ''}
               </div>
             </div>
 
-            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2">
+            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap gap-2">
               ${r.noticeUrl ? `
-                <a href="${escapeHtml(r.noticeUrl)}" target="_blank" rel="noopener noreferrer" class="text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1 rounded-md transition">
+                <a href="${escapeHtml(r.noticeUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1.5 rounded-md transition">
                   Notice PDF
                 </a>
               ` : ''}
               ${r.websiteUrl ? `
-                <a href="${escapeHtml(r.websiteUrl)}" target="_blank" rel="noopener noreferrer" class="text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-md transition">
+                <a href="${escapeHtml(r.websiteUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1.5 rounded-md transition">
                   Website
                 </a>
               ` : ''}
@@ -683,83 +701,7 @@
       }).join('');
     }
 
-    function setView(view) {
-      currentView = view;
-      const btnT = document.getElementById('btnTableView');
-      const btnC = document.getElementById('btnCardView');
-      if (view === 'table') {
-        btnT.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 bg-white text-slate-900 shadow-sm';
-        btnC.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900';
-      } else {
-        btnC.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 bg-white text-slate-900 shadow-sm';
-        btnT.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900';
-      }
-      render();
-    }
-
-    function clearFilters() {
-      document.getElementById('searchInput').value = '';
-      document.getElementById('subjectFilter').value = 'ALL';
-      document.getElementById('reservationFilter').value = 'ALL';
-      document.getElementById('statusFilter').value = 'ALL';
-      render();
-    }
-
-
-    // ---- User name (saved in this browser only) ----
-    const USER_NAME_KEY = 'ass_prof_user_name_v1';
-
-    function getUserName() {
-      try { return (localStorage.getItem(USER_NAME_KEY) || '').trim(); } catch (e) { return ''; }
-    }
-
-    function renderWelcome() {
-      const name = getUserName();
-      const chip = document.getElementById('welcomeChip');
-      if (name) {
-        document.getElementById('welcomeText').textContent = 'Welcome, ' + name;
-        chip.classList.remove('hidden');
-      } else {
-        chip.classList.add('hidden');
-      }
-    }
-
-    function openNameModal(isEdit) {
-      const input = document.getElementById('userNameInput');
-      input.value = isEdit ? getUserName() : '';
-      document.getElementById('nameError').classList.add('hidden');
-      document.getElementById('nameModalTitle').textContent = isEdit ? 'Edit your name' : "Welcome! What's your name?";
-      document.getElementById('nameCancelBtn').classList.toggle('hidden', !isEdit);
-      document.getElementById('nameModal').classList.remove('hidden');
-      setTimeout(() => { input.focus(); input.select(); }, 0);
-    }
-
-    function closeNameModal() {
-      if (!getUserName()) return; // first visit: a name is required
-      document.getElementById('nameModal').classList.add('hidden');
-    }
-
-    function saveUserName() {
-      const name = document.getElementById('userNameInput').value.trim().replace(/\s+/g, ' ');
-      if (!name) {
-        document.getElementById('nameError').classList.remove('hidden');
-        return;
-      }
-      try { localStorage.setItem(USER_NAME_KEY, name); } catch (e) {}
-      document.getElementById('nameModal').classList.add('hidden');
-      renderWelcome();
-    }
-
-    document.getElementById('userNameInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') saveUserName();
-      if (e.key === 'Escape') closeNameModal();
-    });
-
-    renderWelcome();
-    if (!getUserName()) openNameModal(false);
-
-    // Initialize
-    loadFromSheet();
+    loadFromSheet(false);
   </script>
 </body>
 </html>
