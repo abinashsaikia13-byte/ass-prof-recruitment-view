@@ -158,7 +158,7 @@
       { value: 'Not Applied',  cls: 'bg-amber-50 text-amber-700 border-amber-200' },
       { value: 'Applied',      cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
       { value: 'Shortlisted',  cls: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
-      { value: 'Not Eligible', cls: 'bg-rose-50 text-rose-700 border-rose-200' },
+      { value: 'Not Eligible/Interested', cls: 'bg-rose-50 text-rose-700 border-rose-200' },
       { value: 'Closed',       cls: 'bg-slate-100 text-slate-600 border-slate-200' }
     ];
     const DEFAULT_STATUS = 'Not Applied';
@@ -362,7 +362,7 @@
     function renderSummary() {
       const count = (...list) => records.filter(r => list.includes(getMyStatus(r))).length;
       const has = (term) => records.filter(r => (r.reservation || '').toUpperCase().includes(term)).length;
-      const notEligible = count('Not Eligible');
+      const notEligible/Interested = count('Not Eligible/Interested');
 
       $('summaryCards').innerHTML = `
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
@@ -373,7 +373,7 @@
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">My Pending</div>
           <div class="mt-1 text-2xl font-bold text-amber-600">${count('Not Applied')}</div>
-          <div class="mt-1 text-xs text-slate-500">${notEligible} marked not eligible</div>
+          <div class="mt-1 text-xs text-slate-500">${notEligible/Interested} marked not eligible/interested</div>
         </div>
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">My Applied</div>
@@ -407,7 +407,7 @@
 
     function renderTable(list) {
       $('tableBody').innerHTML = list.map((r, idx) => {
-        const dim = getMyStatus(r) === 'Not Eligible' ? 'opacity-60' : '';
+        const dim = getMyStatus(r) === 'Not Eligible/Interested' ? 'opacity-60' : '';
         return `
           <tr class="hover:bg-slate-50/80 transition ${dim}">
             <td class="px-4 py-3.5 font-medium text-slate-500 align-top">${escapeHtml(r.slNo || String(idx + 1))}</td>
@@ -430,7 +430,7 @@
 
     function renderCards(list) {
       $('cardViewContainer').innerHTML = list.map((r, idx) => {
-        const dim = getMyStatus(r) === 'Not Eligible' ? 'opacity-60' : '';
+        const dim = getMyStatus(r) === 'Not Eligible/Interested' ? 'opacity-60' : '';
         return `
           <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between hover:border-indigo-300 transition ${dim}">
             <div>
