@@ -41,7 +41,7 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <button onclick="loadFromSheet(true)" id="refreshBtn" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition">
+        <button type="button" onclick="loadFromSheet(true)" id="refreshBtn" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
@@ -105,10 +105,10 @@
       <div class="flex items-center justify-end gap-2">
         <span class="text-xs text-slate-500 mr-1" id="resultCountLabel">Showing 0 entries</span>
         <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-100">
-          <button id="btnTableView" onclick="setView('table')" class="px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 bg-white text-slate-900 shadow-sm">
+          <button type="button" id="btnTableView" onclick="setView('table')" class="px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 bg-white text-slate-900 shadow-sm">
             Table
           </button>
-          <button id="btnCardView" onclick="setView('card')" class="px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900">
+          <button type="button" id="btnCardView" onclick="setView('card')" class="px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900">
             Cards
           </button>
         </div>
@@ -144,7 +144,7 @@
     <section id="emptyState" class="hidden bg-white rounded-xl border border-slate-200 p-12 text-center">
       <h3 class="text-base font-semibold text-slate-900">No matching recruitment entries</h3>
       <p class="text-sm text-slate-500 mt-1">Try clearing your search filters or refreshing live data.</p>
-      <button onclick="clearFilters()" class="mt-4 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg transition">
+      <button type="button" onclick="clearFilters()" class="mt-4 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg transition">
         Clear Filters
       </button>
     </section>
@@ -427,6 +427,27 @@
       }
     }
 
+    function renderStatusSelect(key, status, compact = false) {
+      const encoded = encodeURIComponent(key);
+      const padClass = compact ? 'px-2 py-1' : 'px-2.5 py-1';
+      return `
+        <select data-record-key="${escapeHtml(encoded)}" class="status-select text-xs font-semibold ${padClass} rounded-lg border cursor-pointer focus:outline-none ${getStatusBadgeClass(status)}">
+          <option value="Not Applied" ${status === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
+          <option value="Applied" ${status === 'Applied' ? 'selected' : ''}>Applied</option>
+          <option value="Shortlisted" ${status === 'Shortlisted' ? 'selected' : ''}>Shortlisted</option>
+          <option value="Not Interested" ${status === 'Not Interested' ? 'selected' : ''}>Not Interested</option>
+          <option value="Closed" ${status === 'Closed' ? 'selected' : ''}>Closed</option>
+        </select>
+      `;
+    }
+
+    document.addEventListener('change', (e) => {
+      const select = e.target.closest('select.status-select');
+      if (!select) return;
+      const key = decodeURIComponent(select.dataset.recordKey || '');
+      if (key) setMyStatus(key, select.value);
+    });
+
     function updateSubjectDropdown() {
       const select = document.getElementById('subjectFilter');
       const currentVal = select.value;
@@ -556,7 +577,7 @@
     function renderTable(list) {
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = list.map((r, idx) => {
-        const encodedKey = encodeURIComponent(getRecordKey(r));
+        const key = getRecordKey(r);
         const status = getMyStatus(r);
         return `
           <tr class="hover:bg-slate-50/80 transition">
@@ -591,13 +612,7 @@
               </div>
             </td>
             <td class="px-4 py-3.5 align-top">
-              <select data-key="${escapeHtml(encodedKey)}" onchange="setMyStatus(decodeURIComponent(this.dataset.key), this.value)" class="text-xs font-semibold px-2.5 py-1 rounded-lg border cursor-pointer focus:outline-none ${getStatusBadgeClass(status)}">
-                <option value="Not Applied" ${status === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
-                <option value="Applied" ${status === 'Applied' ? 'selected' : ''}>Applied</option>
-                <option value="Shortlisted" ${status === 'Shortlisted' ? 'selected' : ''}>Shortlisted</option>
-                <option value="Not Interested" ${status === 'Not Interested' ? 'selected' : ''}>Not Interested</option>
-                <option value="Closed" ${status === 'Closed' ? 'selected' : ''}>Closed</option>
-              </select>
+              ${renderStatusSelect(key, status, false)}
             </td>
           </tr>
         `;
@@ -607,7 +622,7 @@
     function renderCards(list) {
       const container = document.getElementById('cardViewContainer');
       container.innerHTML = list.map((r, idx) => {
-        const encodedKey = encodeURIComponent(getRecordKey(r));
+        const key = getRecordKey(r);
         const status = getMyStatus(r);
         return `
           <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between hover:border-indigo-300 transition">
@@ -618,13 +633,7 @@
                   <h3 class="text-base font-bold text-slate-900 mt-0.5">${escapeHtml(r.collegeName)}</h3>
                   <p class="text-xs text-slate-500 mt-0.5">${escapeHtml(r.address)}</p>
                 </div>
-                <select data-key="${escapeHtml(encodedKey)}" onchange="setMyStatus(decodeURIComponent(this.dataset.key), this.value)" class="text-xs font-semibold px-2 py-1 rounded-lg border cursor-pointer ${getStatusBadgeClass(status)}">
-                  <option value="Not Applied" ${status === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
-                  <option value="Applied" ${status === 'Applied' ? 'selected' : ''}>Applied</option>
-                  <option value="Shortlisted" ${status === 'Shortlisted' ? 'selected' : ''}>Shortlisted</option>
-                  <option value="Not Interested" ${status === 'Not Interested' ? 'selected' : ''}>Not Interested</option>
-                  <option value="Closed" ${status === 'Closed' ? 'selected' : ''}>Closed</option>
-                </select>
+                ${renderStatusSelect(key, status, true)}
               </div>
 
               <div class="mt-4 pt-3 border-t border-slate-100 space-y-2 text-sm">
