@@ -362,7 +362,7 @@
     function renderSummary() {
       const count = (...list) => records.filter(r => list.includes(getMyStatus(r))).length;
       const has = (term) => records.filter(r => (r.reservation || '').toUpperCase().includes(term)).length;
-      const notEligible/Interested = count('Not Eligible/Interested');
+      const notEligible = count('Not Eligible/Interested');
 
       $('summaryCards').innerHTML = `
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
@@ -373,7 +373,7 @@
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">My Pending</div>
           <div class="mt-1 text-2xl font-bold text-amber-600">${count('Not Applied')}</div>
-          <div class="mt-1 text-xs text-slate-500">${notEligible/Interested} marked not eligible/interested</div>
+          <div class="mt-1 text-xs text-slate-500">${notEligible} marked not eligible/interested</div>
         </div>
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">My Applied</div>
